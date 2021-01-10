@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ $1 == 'commit' ]
+then
+    if [ $2 == '--auto' ]
+    then
+        PYTHONPATH=app alembic revision --autogenerate $3 "$4"
+    else
+        PYTHONPATH=app alembic revision $2 "$3"
+    fi
+else
+    PYTHONPATH=app alembic $*
+fi

@@ -1,0 +1,33 @@
+@startuml erd
+
+entity account {
+  id: int <<PK>>
+  --
+  username: varchar(100)
+  password: varchar(100)
+  token: varchar(100)
+  user_id: int <<FK>>
+}
+
+entity user {
+  id: int <<PK>>
+  --
+  firstname: varchar(100)
+  lastname: varchar(100)
+  profile: text
+  phone: varchar(50)
+}
+
+entity user_asset {
+  id: int <<PK>>
+  --
+  image: text
+  width: int(10)
+  height: int(10)
+  user_id: int <<FK>>
+}
+
+account ||--|| user
+user ||--o{ user_asset
+
+@enduml
