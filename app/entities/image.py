@@ -25,9 +25,9 @@ class Image(Database.Base):
 
     deleted_at = Column(DateTime)
 
-    user_id = Column(Integer, ForeignKey('user.user.id'), nullable=False)  # noqa: E501
+    profile_id = Column(Integer, ForeignKey('user.profile.id'), nullable=False)  # noqa: E501
 
-    user = relationship('User', uselist=False, back_populates='images')
+    profile = relationship('User', uselist=False, back_populates='images')
 
     def __init__(self, image: str, width: str, height: str, deleted_at: str):  # noqa: E501
         self.image = image

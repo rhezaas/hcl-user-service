@@ -26,4 +26,7 @@ class Server():
         if config('ENV') == 'production':
             serve(self.__flask__)
         else:
-            self.__flask__.run(port=config('PORT'))
+            self.__flask__.run(
+                host='0.0.0.0',
+                port=config('PORT')
+            )

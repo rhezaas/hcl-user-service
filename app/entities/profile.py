@@ -1,11 +1,11 @@
-from sqlalchemy import Column, String, Integer, Text, DateTime
+from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey
 from database import Database
 from sqlalchemy.orm import relationship
 import datetime
 
 
-class User(Database.Base):
-    __tablename__ = 'user'
+class Profile(Database.Base):
+    __tablename__ = 'profile'
     __table_args__ = {
         'schema': 'user',
         'extend_existing': True
@@ -27,9 +27,11 @@ class User(Database.Base):
 
     deleted_at = Column(DateTime)
 
-    account = relationship('Account', uselist=False, back_populates='user')
+    account_id = Column(Integer, ForeignKey('user.account.id'), unique=True, nullable=False)  # noqa: E501
 
-    images = relationship('Image', back_populates='user')
+    account = relationship('Account', uselist=False, back_populates='profile')
+
+    images = relationship('Image', back_populates='profile')
 
     def __init__(
         self,

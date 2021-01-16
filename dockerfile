@@ -7,17 +7,17 @@ MAINTAINER Rheza
 ## working directory
 WORKDIR /usr/src
 
-## copy app folder to 
-COPY app app
-
 ## copy requeiremtns.txt to workdir
 COPY requirements.txt requirements.txt
 
-## copy dotenv
-COPY .env .env
-
 ## install requirements
 RUN pip3 install --no-cache-dir -r requirements.txt
+
+## copy app folder to 
+COPY app app
+
+## copy dotenv
+COPY .env .env
 
 ## start main.py
 ENTRYPOINT ["python3", "app/main.py"]

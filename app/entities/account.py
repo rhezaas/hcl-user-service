@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Integer, DateTime
 import datetime
 from database import Database
 from sqlalchemy.orm import relationship
@@ -21,9 +21,7 @@ class Account(Database.Base):
 
     token = Column(String(length=100))
 
-    user_id = Column(Integer, ForeignKey('user.user.id'), unique=True, nullable=False)  # noqa: E501
-
-    user = relationship('User', back_populates='account')
+    profile = relationship('Profile', back_populates='account')
 
     def __init__(
         self,
