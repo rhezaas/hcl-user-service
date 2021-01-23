@@ -1,7 +1,5 @@
-from models.controller import ControllerModel
-from models.middleware import Middleware
-from models.query import QueryModel
-from entities import User, Image
+from models import ControllerModel, Middleware
+from entities import Profile, Image
 from flask import request
 
 
@@ -19,22 +17,22 @@ class UserController(ControllerModel):
 
     @Middleware.authentication
     def getMe(self, user, transaction):
-        _user = transaction.query(User)\
-            .join(Image, Image.user_id == User.id, isouter=True)\
-            .filter(User.id == user['id'])\
-            .first()
+        images = transaction.select(Image)\
+            .filter(Image.profile_id == user['profile_id'])\
+            .all()
 
         return {
-            'id': _user.id,
-            'firstname': _user.firstname,
-            'lastname': _user.lastname,
-            'phone': _user.phone,
+            'account_id': user['account_id'],
+            'profile_id': user['profile_id'],
+            'firstname': user['firstname'],
+            'lastname': user['lastname'],
+            'phone': user['phone'],
             'image': list(map(lambda asset: {
                 'id': asset.id,
                 'image': asset.image,
                 'width': asset.width,
                 'height': asset.height
-            }, _user.assets))
+            }, images))
         }
 
     @Middleware.authentication
@@ -42,15 +40,15 @@ class UserController(ControllerModel):
         data = request.json
 
         # update user
-        user = QueryModel().update(User)\
-            .values(data).where(User.id == user['id'])\
+        user = transaction.update(Profile)\
+            .values(data).where(Profile.id == user['profile_id'])\
             .returning(
-                User.id,
-                User.firstname,
-                User.lastname,
-                User.phone,
-                User.profile
-            ).execute(transaction)\
+                Profile.id,
+                Profile.firstname,
+                Profile.lastname,
+                Profile.phone,
+                Profile.profile
+            ).execute()\
             .fetchone()
 
         return {
@@ -65,19 +63,19 @@ class UserController(ControllerModel):
     def uploadImage(self, user, transaction):
         data = request.json
 
-        image = QueryModel().insert(Image)\
+        image = transaction.insert(Image)\
             .values({
                 'image': data['image'],
                 'height': data['height'],
                 'width': data['width'],
-                'user_id': user['id']
+                'profile_id': user['profile_id']
             })\
             .returning(
                 Image.id,
                 Image.image,
                 Image.height,
                 Image.width,
-            ).execute(transaction)\
+            ).execute()\
             .fetchone()
 
         return {

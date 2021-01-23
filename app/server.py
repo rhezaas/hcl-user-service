@@ -4,7 +4,7 @@ import controllers
 from decouple import config
 
 
-class Server():
+class Server:
     def __init__(self):
         self.__flask__ = Flask('User Service')
 
@@ -13,6 +13,7 @@ class Server():
 
         self.__flask__.config['JSON_SORT_KEYS'] = False
         self.__flask__.config['ENV'] = config('ENV')
+        self.__flask__.config['DEBUG'] = True if config('DEBUG') == 'true' else False  # noqa: E501
 
         return self
 

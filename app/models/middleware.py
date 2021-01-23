@@ -1,5 +1,5 @@
 from flask import request
-from entities import Account, User
+from entities import Account, Profile
 from models.error import UnauthorizedException
 from inspect import getargspec
 
@@ -10,29 +10,31 @@ class Middleware:
         def wrapper(self, transaction):
             token = request.headers['Authorization'].split(' ')[1]
 
-            user = transaction.select(User)\
-                .join(Account, Account.user_id == User.id)\
+            account = transaction.select(Account)\
+                .join(Profile, Profile.account_id == Account.id)\
                 .filter(Account.token == token)\
                 .first()
 
-            if not (user is None):
+            if not (account is None):
                 if 'transaction' in getargspec(function)[0]:
                     if 'user' in getargspec(function)[0]:
                         return function(self, {
-                            'id': user.id,
-                            'firstname': user.firstname,
-                            'lastname': user.lastname,
-                            'phone': user.phone,
+                            'account_id': account.id,
+                            'profile_id': account.profile.id,
+                            'firstname': account.profile.firstname,
+                            'lastname': account.profile.lastname,
+                            'phone': account.profile.phone,
                         }, transaction)
                     else:
                         return function(self, transaction)
                 else:
                     if 'user' in getargspec(function)[0]:
                         return function(self, {
-                            'id': user.id,
-                            'firstname': user.firstname,
-                            'lastname': user.lastname,
-                            'phone': user.phone,
+                            'account_id': account.id,
+                            'profile_id': account.profile.id,
+                            'firstname': account.profile.firstname,
+                            'lastname': account.profile.lastname,
+                            'phone': account.profile.phone,
                         })
                     else:
                         return function(self)

@@ -21,7 +21,7 @@ class Account(Database.Base):
 
     token = Column(String(length=100))
 
-    profile = relationship('Profile', back_populates='account')
+    profile = relationship('Profile', uselist=False, back_populates='account')
 
     def __init__(
         self,

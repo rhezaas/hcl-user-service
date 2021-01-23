@@ -1,6 +1,6 @@
-from models.controller import ControllerModel
+from models import ControllerModel, Middleware
 from flask import request
-from entities import Account, User
+from entities import Account, Profile
 from models.error import NotFoundException, UnauthorizedException
 from hmac import new as hmac
 from hashlib import sha3_512, sha3_256, md5, sha256
@@ -23,17 +23,10 @@ class AccountController(ControllerModel):
         }
 
     # get auth
-    def getAuth(self, transaction):
-        token = request.headers['Authorization'].split(' ')[1]
+    @Middleware.authentication
+    def getAuth(self, user, transaction):
 
-        user = transaction.select(User)\
-            .join(Account, Account.user_id == User.id)\
-            .filter(Account.token == token)\
-            .first()
-
-        return {
-            'id': user.id
-        }
+        return user
 
     # register
     def register(self, transaction):
@@ -43,20 +36,20 @@ class AccountController(ControllerModel):
         password = self.__hashPassword(data['password'])
         token = sha256(password.encode()).hexdigest()
 
-        # add user
-        user = transaction.insert(User).values({
-            'firstname': data['firstname'],
-            'lastname': data['lastname'],
-            'phone': data['phone']
-        }).returning(User.id).execute().fetchone()
-
         # add account
-        transaction.insert(Account).values({
+        account = transaction.insert(Account).values({
             'username': data['username'],
             'password': password,
-            'token': token,
-            'user_id': user[0]
-        }).execute()
+            'token': token
+        }).returning(Account.id).execute().fetchone()
+
+        # add profile
+        transaction.insert(Profile).values({
+            'firstname': data['firstname'],
+            'lastname': data['lastname'],
+            'phone': data['phone'],
+            'account_id': account.id
+        }).returning(Profile.id).execute().fetchone()
 
         return {
             'firsname': data['firstname'],
@@ -69,9 +62,9 @@ class AccountController(ControllerModel):
     def login(self, transaction):
         data = request.json
 
-        # query user
+        # query account
         account = transaction.select(Account)\
-            .join(User, User.id == Account.user_id)\
+            .join(Profile, Profile.account_id == Account.id)\
             .filter(Account.username == data['username'])\
             .first()
 
@@ -88,10 +81,10 @@ class AccountController(ControllerModel):
                     .execute()
 
                 return {
-                    'id': account.user.id,
-                    'firstname': account.user.firstname,
-                    'lastname': account.user.lastname,
-                    'phone': account.user.phone,
+                    'id': account.id,
+                    'firstname': account.profile.firstname,
+                    'lastname': account.profile.lastname,
+                    'phone': account.profile.phone,
                     'token': token
                 }
             else:

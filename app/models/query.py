@@ -1,8 +1,9 @@
 from sqlalchemy import insert, update, delete
+from sqlalchemy.orm import Session
 
 
 class QueryModel:
-    def __init__(self, transaction):
+    def __init__(self, transaction: Session):
         self.__transaction__ = transaction
         self.__insert__ = None
         self.__update__ = None

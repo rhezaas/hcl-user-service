@@ -27,7 +27,7 @@ class Image(Database.Base):
 
     profile_id = Column(Integer, ForeignKey('user.profile.id'), nullable=False)  # noqa: E501
 
-    profile = relationship('User', uselist=False, back_populates='images')
+    profile = relationship('Profile', uselist=False, back_populates='images')
 
     def __init__(self, image: str, width: str, height: str, deleted_at: str):  # noqa: E501
         self.image = image
