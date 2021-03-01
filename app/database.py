@@ -12,7 +12,7 @@ class Database:
         config('DB_HOST'),
         config('DB_PORT'),
         config('DB_NAME')
-    ), echo=True if config('DB_DEBUG') == 'true' else False,
+    ), echo=True if config('DEBUG') == 'true' else False,
         pool_pre_ping=True,
         pool_size=1
     )
